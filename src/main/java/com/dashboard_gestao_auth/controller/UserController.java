@@ -7,14 +7,15 @@ import com.dashboard_gestao_auth.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/users")
@@ -57,8 +58,19 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("hasAuthority('SCOPE_BASIC')")
-    public ResponseEntity<String> me(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(userDetails.getUsername());
+    public ResponseEntity<User> me() {
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return null;
+        }
+
+        User user = new User();
+        user.setUsername(this.userRepository.findByUserId(UUID.fromString(jwt.getSubject())).get().getUsername());
+
+        return ResponseEntity.ok(user);
+
     }
 
 }

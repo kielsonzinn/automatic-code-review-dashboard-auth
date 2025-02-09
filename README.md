@@ -1,2 +1,3 @@
-# automatic-code-review-dashboard-auth
-automatic-code-review-dashboard-auth
+# DashboardAuth
+
+- Projeto principal com a documentação [acr-gateway](https://github.com/andreruizrt/acr-gateway)
